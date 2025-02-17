@@ -33,6 +33,9 @@ def preprocess_image(image_bytes):
     image = image.unsqueeze(0)  # Add batch dimension
     return image
 
+# Define your class labels
+LABELS = ["Bungalow", "High-rise", "Storey-building"]
+
 @app.post("/predict/")
 async def predict(file: UploadFile = File(...)):
     image_bytes = await file.read()
@@ -42,5 +45,7 @@ async def predict(file: UploadFile = File(...)):
     with torch.no_grad():
         output = model(image_tensor)
 
-    prediction = output.argmax(dim=1).item()
-    return {"prediction": prediction}
+    prediction_index = output.argmax(dim=1).item()
+    prediction_label = LABELS[prediction_index]
+
+    return {"prediction_index": prediction_index, "prediction_label": prediction_label}
